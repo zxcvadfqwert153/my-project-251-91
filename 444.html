@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Как создать простой одностраничный сайт — блог для новичков</title>
+<meta name="description" content="Пошаговое руководство: как сделать простой одностраничный сайт (лендинг) за один вечер — структура, инструменты, пример кода.">
+<style>
+  :root{
+    --bg:#f8f9fc; --card:#ffffff; --ink:#1c2333; --muted:#5b6478;
+    --accent:#5b5bd6; --accent2:#8b5cf6; --accent-soft:#eef0ff;
+    --ok:#16a34a; --border:#e5e8f0; --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+  .container{max-width:1040px;margin:0 auto;padding:0 20px}
+  h2{font-size:clamp(1.5rem,3vw,2rem);margin-bottom:.6em}
+  h3{font-size:1.15rem}
+  p{margin-bottom:1em;color:var(--muted)}
+  section{padding:64px 0}
+  .badge{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:.8rem;font-weight:700;
+    padding:6px 14px;border-radius:999px;letter-spacing:.04em;margin-bottom:18px;text-transform:uppercase}
+
+  /* Шапка */
+  .site-header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{font-weight:800;font-size:1.1rem;color:var(--ink);text-decoration:none}
+  .logo span{color:var(--accent)}
+  nav a{color:var(--muted);text-decoration:none;margin-left:22px;font-size:.95rem}
+  nav a:hover{color:var(--accent)}
+  .burger{display:none;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink)}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,#5b5bd6 0%,#8b5cf6 60%,#c084fc 100%);color:#fff;text-align:center;padding:96px 0}
+  .hero h1{font-size:clamp(1.8rem,4.5vw,2.9rem);line-height:1.2;margin-bottom:16px}
+  .hero p{color:rgba(255,255,255,.85);max-width:640px;margin:0 auto 28px}
+  .btn{display:inline-block;background:#fff;color:var(--accent);font-weight:700;padding:14px 32px;
+    border-radius:999px;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-outline{display:inline-block;border:2px solid var(--accent);color:var(--accent);font-weight:600;
+    padding:10px 26px;border-radius:999px;text-decoration:none;transition:.2s}
+  .btn-outline:hover{background:var(--accent);color:#fff}
+
+  /* Карточки */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;
+    transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(28,35,51,.08)}
+  .card .num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;
+    background:var(--accent-soft);color:var(--accent);font-weight:800;margin-bottom:14px}
+  .card p{margin:0;font-size:.95rem}
+  .card h3{margin-bottom:8px}
+
+  /* Код */
+  .code-wrap{background:#0f172a;border-radius:var(--radius);padding:24px;position:relative;overflow:auto}
+  .code-wrap pre{color:#e2e8f0;font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:.85rem;line-height:1.6;white-space:pre}
+  .code-wrap .tag{color:#7dd3fc}.code-wrap .attr{color:#c4b5fd}.code-wrap .str{color:#86efac}.code-wrap .com{color:#64748b}
+  .copy-btn{position:absolute;top:14px;right:14px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;
+    border-radius:8px;padding:6px 14px;font-size:.8rem;cursor:pointer}
+  .copy-btn:hover{background:#334155;color:#fff}
+
+  /* Таблица-сравнение */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .compare .card h3{color:var(--accent)}
+  .compare ul{padding-left:20px;color:var(--muted);font-size:.95rem}
+
+  /* Чек-лист */
+  .checklist{list-style:none;max-width:640px}
+  .checklist li{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px 14px 46px;
+    margin-bottom:10px;position:relative}
+  .checklist li::before{content:"✓";position:absolute;left:16px;top:12px;width:22px;height:22px;border-radius:50%;
+    background:var(--ok);color:#fff;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+
+  /* FAQ */
+  details{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;padding:16px 20px}
+  summary{font-weight:700;cursor:pointer}
+  details p{margin:12px 0 0}
+
+  /* Footer */
+  footer{background:#141a2b;color:#94a3b8;text-align:center;padding:36px 0;font-size:.9rem}
+  footer a{color:#c7d2fe}
+
+  /* Анимация появления */
+  .reveal{opacity:0;transform:translateY(24px);transition:.6s ease}
+  .reveal.visible{opacity:1;transform:none}
+
+  @media(max-width:720px){
+    .burger{display:block}
+    nav{position:absolute;top:64px;left:0;right:0;background:#fff;flex-direction:column;padding:12px 20px 20px;
+      display:none;border-bottom:1px solid var(--border)}
+    nav.open{display:flex}
+    nav a{display:block;margin:10px 0}
+    .compare{grid-template-columns:1fr}
+    section{padding:48px 0}
+  }
+</style>
+</head>
+<body id="top">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="#top">OnePage<span>Блог</span></a>
+    <button class="burger" id="burger" aria-label="Меню">☰</button>
+    <nav id="nav">
+      <a href="#about">О лендингах</a>
+      <a href="#steps">5 шагов</a>
+      <a href="#code">Пример кода</a>
+      <a href="#tools">Инструменты</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Первый экран -->
+  <section class="hero">
+    <div class="container">
+      <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">Гайд для новичков</span>
+      <h1>Как создать простой одностраничный сайт<br>за один вечер</h1>
+      <p>Без бюджета, без дизайнера и без месяцев разработки. Структура, инструменты, готовый пример кода и чек-лист перед публикацией.</p>
+      <a href="#steps" class="btn">Начать читать ↓</a>
+    </div>
+  </section>
+
+  <!-- Что это такое -->
+  <section id="about">
+    <div class="container reveal">
+      <h2>Что такое одностраничный сайт и когда он нужен</h2>
+      <p>Одностраничник — это сайт, где вся информация на одной странице: посетитель просто прокручивает её сверху вниз. Это идеальный первый сайт: он быстро делается, легко редактируется и отлично решает одну конкретную задачу.</p>
+      <div class="grid" style="margin-top:28px">
+        <div class="card"><h3>💼 Услуга</h3><p>Репетитор, мастер маникюра, репортёр — визитка с услугами и кнопкой «Записаться».</p></div>
+        <div class="card"><h3>🎯 Заявки</h3><p>Сбор записей на вебинар, консультацию или регистрацию на скидку.</p></div>
+        <div class="card"><h3>🖼 Портфолио</h3><p>Фотограф, дизайнер, разработчик — витрина работ и контакты.</p></div>
+        <div class="card"><h3>🚀 Проверка идеи</h3><p>Реклама ведёт на лендинг — уже через неделю видно, есть ли спрос.</p></div>
+      </div>
+      <p style="margin-top:24px"><strong>Когда не подойдёт:</strong> интернет-магазин с сотнями товаров, большой корпоративный сайт или блог с множеством статей — там нужна многостраничная структура.</p>
+    </div>
+  </section>
+
+  <!-- Шаги -->
+  <section id="steps" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container reveal">
+      <h2>5 шагов к готовому сайту</h2>
+      <div class="grid" style="margin-top:28px">
+        <div class="card"><span class="num">1</span><h3>Одна главная цель</h3><p>Заложите в основу одно целевое действие: позвонить, оставить заявку, записаться. Всё на странице ведёт к нему.</p></div>
+        <div class="card"><span class="num">2</span><h3>Тексты раньше дизайна</h3><p>Выпишите текст каждого блока на бумагу: кто вы, что предлагаете, почему доверять вам. Контент — половина успеха.</p></div>
+        <div class="card"><span class="num">3</span><h3>Простая структура</h3><p>Шапка → первый экран с оффером → услуги → преимущества → отзывы → контакты → подвал. Не усложняйте.</p></div>
+        <div class="card"><span class="num">4</span><h3>Выбор инструмента</h3><p>Конструктор (Tilda, Craftum) — за час без кода. Свой HTML+CSS — бесплатно и полный контроль. Оба пути рабочие.</p></div>
+        <div class="card"><span class="num">5</span><h3>Публикация</h3><p>Хостинг и домен, либо бесплатный GitHub Pages / Netlify. Проверьте мобильную версию — половина трафика оттуда.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Пример кода -->
+  <section id="code">
+    <div class="container reveal">
+      <h2>Минимальный каркас на чистом HTML</h2>
+      <p>Вот скелет, с которого можно начать. Сохраните как <code>index.html</code> — и уже есть работающая страница с секциями.</p>
+      <div class="code-wrap">
+        <button class="copy-btn" id="copyBtn">Копировать</button>
+<pre id="codeSample"><span class="com">&lt;!-- Минимальный одностраничник --&gt;</span>
+<span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="str">"ru"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="str">"UTF-8"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="str">"viewport"</span> <span class="attr">content</span>=<span class="str">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;title&gt;</span>Мои услуги<span class="tag">&lt;/title&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;header&gt;&lt;h1&gt;</span>Анна Смирнова — веб-дизайнер<span class="tag">&lt;/h1&gt;&lt;/header&gt;</span>
+
+  <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"uslugi"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Услуги<span class="tag">&lt;/h2&gt;</span>
+    <span class="tag">&lt;ul&gt;</span>
+      <span class="tag">&lt;li&gt;</span>Лендинг под ключ<span class="tag">&lt;/li&gt;</span>
+      <span class="tag">&lt;li&gt;</span>Редизайн сайта<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;/ul&gt;</span>
+  <span class="tag">&lt;/section&gt;</span>
+
+  <span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="str">"contacts"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h2&gt;</span>Контакты<span class="tag">&lt;/h2&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="str">"tel:+79000000000"</span><span class="tag">&gt;</span>+7 900 000-00-00<span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;/section&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></pre>
+      </div>
+      <p style="margin-top:20px">Дальше подключите свой CSS в блоке <code>&lt;style&gt;</code> — раскрасьте, добавьте сетку карточек и адаптив. За основу можно взять стили с этой самой страницы 😉</p>
+    </div>
+  </section>
+
+  <!-- Сравнение путей -->
+  <section id="tools" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container reveal">
+      <h2>Конструктор или свой код?</h2>
+      <div class="compare" style="margin-top:28px">
+        <div class="card">
+          <h3>🧩 Конструктор</h3>
+          <ul>
+            <li>Готовые шаблоны и блоки</li>
+            <li>Хостинг и SSL уже включены</li>
+            <li>Сайт за пару часов</li>
+            <li>Минус: абонентская плата</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⌨️ HTML + CSS</h3>
+          <ul>
+            <li>Бесплатно (только домен)</li>
+            <li>Полный контроль над кодом</li>
+            <li>Быстро грузится, легко мигрирует</li>
+            <li>Минус: нужно немного учиться</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:24px"><strong>Мой совет:</strong> если цель — «просто попробовать» и запустить быстро, берите конструктор. Если хотите расти в веб-разработке — соберите первый сайт руками. Это лучший учебник.</p>
+    </div>
+  </section>
+
+  <!-- Чек-лист -->
+  <section id="checklist">
+    <div class="container reveal">
+      <h2>Чек-лист перед публикацией</h2>
+      <ul class="checklist" style="margin-top:24px">
+        <li>Сайт открывается с телефона и не «разъезжается»</li>
+        <li>Кнопки связи крупные и кликабельные (tel:, WhatsApp, Telegram)</li>
+        <li>Заголовок первого экрана отвечает на вопрос «что я здесь получу?»</li>
+        <li>Есть хотя бы 2–3 отзыва или примеры работ</li>
+        <li>Скорость загрузки: картинки сжаты, вес страницы до 1 МБ</li>
+        <li>Указаны контакты, адрес и часы работы</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="background:#fff;border-top:1px solid var(--border)">
+    <div class="container reveal">
+      <h2>Частые вопросы</h2>
+      <details><summary>Нужен ли программист?</summary><p>Нет. Простой одностраничник реально собрать самому: на конструкторе — вообще без кода, а каркас из примера выше под силу новичку за вечер.</p></details>
+      <details><summary>Сколько это стоит?</summary><p>От 0 ₽: бесплатный хостинг (GitHub Pages, Netlify) + платный домен около 200–400 ₽/год. Конструкторы — примерно от 150 ₽/мес.</p></details>
+      <details><summary>Сколько времени займёт?</summary><p>На конструкторе с шаблоном — 2–4 часа. Свой код с нуля — 1–2 вечера, включая правки текстов.</p></details>
+      <details><summary>Нужен ли мобильный дизайн отдельно?</summary><p>Отдельная версия не нужна — достаточно адаптивной вёрстки: медиазапросы в CSS сами подстроят страницу под экран телефона.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>OnePage<span style="color:#c7d2fe">Блог</span> · Гайд по созданию одностраничных сайтов · 2025</p>
+    <p><a href="#top">Наверх ↑</a></p>
+  </div>
+</footer>
+
+<script>
+  // Мобильное меню
+  const burger = document.getElementById('burger');
+  const nav = document.getElementById('nav');
+  burger.addEventListener('click', () => nav.classList.toggle('open'));
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+
+  // Кнопка «Копировать» у примера кода
+  const copyBtn = document.getElementById('copyBtn');
+  copyBtn.addEventListener('click', () => {
+    const text = document.getElementById('codeSample').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.textContent = 'Скопировано ✓';
+      setTimeout(() => copyBtn.textContent = 'Копировать', 2000);
+    });
+  });
+
+  // Плавное появление блоков при скролле
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
